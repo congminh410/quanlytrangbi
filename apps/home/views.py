@@ -13,6 +13,9 @@ from .models import TrangBi, NhanVien, BanGiao, SuaChua
 from .forms import TrangBiForm, NhanVienForm, BanGiaoForm, SuaChuaForm
 import logging
 from datetime import datetime
+import pandas as pd
+from openpyxl import load_workbook
+from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 
 logger = logging.getLogger('user_activity')
 
@@ -153,7 +156,7 @@ def xoa_nhan_vien(request):
 
 @login_required(login_url="/login/")
 def them_ban_giao(request):
-    logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: User {request.user.username} added BanGiao")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: User {request.user.username} add BanGiao")
     if request.method == "POST":
         form = BanGiaoForm(request.POST)
         if form.is_valid():
@@ -171,7 +174,7 @@ def them_ban_giao(request):
 
 @login_required(login_url="/login/")
 def sua_ban_giao(request):
-    logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: User {request.user.username} changed BanGiao")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: User {request.user.username} change BanGiao")
     if request.method == "POST":
         ma_ban_giao = request.POST.get("ma_ban_giao")
         ban_giao = get_object_or_404(BanGiao, ma_ban_giao=ma_ban_giao)
@@ -192,7 +195,7 @@ def sua_ban_giao(request):
 
 @login_required(login_url="/login/")
 def xoa_ban_giao(request):
-    logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: User {request.user.username} deleted BanGiao")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: User {request.user.username} delete BanGiao")
     if request.method == "POST":
         ma_ban_giao = request.POST.get("ma_ban_giao")
         ban_giao = get_object_or_404(BanGiao, ma_ban_giao=ma_ban_giao)
@@ -208,7 +211,7 @@ def xoa_ban_giao(request):
 
 @login_required(login_url="/login/")
 def them_sua_chua(request):
-    logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: User {request.user.username} added SuaChua")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: User {request.user.username} add SuaChua")
     if request.method == "POST":
         form = SuaChuaForm(request.POST)
         if form.is_valid():
@@ -221,7 +224,7 @@ def them_sua_chua(request):
 
 @login_required(login_url="/login/")
 def sua_sua_chua(request):
-    logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: User {request.user.username} changed SuaChua")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: User {request.user.username} change SuaChua")
     if request.method == "POST":
         ma_sua_chua = request.POST.get("ma_sua_chua")
         sua_chua = get_object_or_404(SuaChua, ma_sua_chua=ma_sua_chua)
@@ -233,13 +236,81 @@ def sua_sua_chua(request):
 
 @login_required(login_url="/login/")
 def xoa_sua_chua(request):
-    logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: User {request.user.username} deleted SuaChua")
+    logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: User {request.user.username} delete SuaChua")
     if request.method == "POST":
         ma_sua_chua = request.POST.get("ma_sua_chua")
         sua_chua = get_object_or_404(SuaChua, ma_sua_chua=ma_sua_chua)
         sua_chua.delete()
         return redirect('home')
     return redirect('home')
+
+@login_required(login_url="/login/")
+def export_report(request):
+    # Get the data
+    if request.user.is_superuser:
+        trang_bi_list = TrangBi.objects.all()
+        nhan_vien_list = NhanVien.objects.all()
+        ban_giao_list = BanGiao.objects.all()
+        sua_chua_list = SuaChua.objects.all()
+    else:
+        groups = list(request.user.groups.values_list('name', flat=True))
+        nhan_vien = NhanVien.objects.filter(ten_dang_nhap=request.user.username).first()
+
+        if nhan_vien:
+            if 'SQHĐ' in groups:
+                trang_bi_list = TrangBi.objects.filter(nguoi_quan_ly=nhan_vien)
+                ban_giao_list = BanGiao.objects.filter(ben_giao=nhan_vien) | BanGiao.objects.filter(ben_nhan=nhan_vien)
+                sua_chua_list = SuaChua.objects.filter(nguoi_sua=nhan_vien)
+            else:
+                trang_bi_list = TrangBi.objects.all()
+                ban_giao_list = BanGiao.objects.all()
+                sua_chua_list = SuaChua.objects.all()
+        else:
+            trang_bi_list = TrangBi.objects.none()
+            ban_giao_list = BanGiao.objects.none()
+            sua_chua_list = SuaChua.objects.none()
+
+    # Load an existing Excel template
+    import os
+    from django.conf import settings
+    wb = load_workbook(os.path.join(settings.BASE_DIR, 'apps', 'static', 'template.xlsx'))
+    
+    ws_trang_bi = wb['TrangBi']
+    for item in trang_bi_list:
+        ws_trang_bi.append([item.ma_trang_bi, item.ten, item.nguoi_quan_ly.ho_ten if item.nguoi_quan_ly else "", item.tinh_trang, item.loai])
+
+    ws_nhan_vien = wb['NhanVien']
+    for item in nhan_vien_list:
+        ws_nhan_vien.append([item.ma_nhan_vien, item.ho_ten, item.don_vi, item.vai_tro])
+
+    ws_ban_giao = wb['BanGiao']
+    for item in ban_giao_list:
+        ws_ban_giao.append([item.ma_ban_giao, item.ngay, item.ben_giao.ho_ten if item.ben_giao else "", item.ben_nhan.ho_ten if item.ben_nhan else "", item.ma_trang_bi.ma_trang_bi])
+
+    ws_sua_chua = wb['SuaChua']
+    for item in sua_chua_list:
+        ws_sua_chua.append([item.ma_sua_chua, item.ngay, item.nguoi_sua.ho_ten if item.nguoi_sua else "", item.noi_dung, item.ma_trang_bi.ma_trang_bi])
+
+    # Set column widths for better readability
+    column_widths = {
+        'A': 15, 'B': 30, 'C': 20, 'D': 20, 'E': 20
+    }
+    
+    for sheet in wb.worksheets:
+        for col, width in column_widths.items():
+            sheet.column_dimensions[col].width = width
+
+    # Get the current timestamp for the filename
+    current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    filename = f"bao_cao_{current_time}.xlsx"
+
+    # Save the updated workbook to the response
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    wb.save(response)
+    
+    return response
+
 
 @login_required(login_url="/login/")
 def pages(request):

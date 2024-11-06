@@ -28,6 +28,8 @@ urlpatterns = [
     path('sua-sua-chua/', views.sua_sua_chua, name='sua_sua_chua'),
     path('xoa-sua-chua/', views.xoa_sua_chua, name='xoa_sua_chua'),
 
+    path('export_report/', views.export_report, name='export_report'),
+
     # Matches any html file
     re_path(r'^.*\.*', views.pages, name='pages'),
 ]
