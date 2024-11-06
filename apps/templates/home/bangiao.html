@@ -1,0 +1,175 @@
+<div class="tab-pane fade {% if request.GET.tab == 'bangiao' %}show active{% endif %}" id="bangiao">
+    <!-- Nội dung của tab Bàn giao -->
+    <div class="row row-xs wd-xl-80p">
+      <div class="col-sm-6 col-md-3 mg-t-10 mg-b-20 mg-md-t-0">
+        {% if perms.home.add_bangiao %}
+          <button class="btn btn-primary btn-block" data-toggle="modal" data-target="#addBanGiaoModal">Thêm bàn giao</button>
+        {% endif %}
+      </div>
+    </div>
+    
+    <!-- Modal Thêm -->
+    <div class="modal fade" id="addBanGiaoModal" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Thêm Bàn Giao</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form method="post" action="{% url 'them_ban_giao' %}">
+              {% csrf_token %}
+              <div class="form-group">
+                <label>Mã Bàn Giao</label>
+                <input type="text" class="form-control" name="ma_ban_giao" maxlength="10" required>
+              </div>
+              <div class="form-group">
+                <label>Ngày</label>
+                <input type="date" class="form-control" name="ngay" required>
+              </div>
+              <div class="form-group">
+                <label>Bên Giao</label>
+                <select class="form-control" name="ben_giao" required>
+                  {% for nhan_vien in nhan_vien_list %}
+                    <option value="{{ nhan_vien.ma_nhan_vien }}">{{ nhan_vien.ho_ten }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Bên Nhận</label>
+                <select class="form-control" name="ben_nhan" required>
+                  {% for nhan_vien in nhan_vien_list %}
+                    <option value="{{ nhan_vien.ma_nhan_vien }}">{{ nhan_vien.ho_ten }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Mã Trang Bị</label>
+                <select class="form-control" name="ma_trang_bi" required>
+                  {% for trang_bi in trang_bi_list %}
+                    <option value="{{ trang_bi.ma_trang_bi }}">{{ trang_bi.ten }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary">Lưu</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row row-sm mg-b-20">
+      <div class="table-responsive">
+        <table class="table table-striped mg-b-0">
+          <thead>
+            <tr>
+              <th>STT</th>
+              <th>Ngày</th>
+              <th>Bên giao</th>
+              <th>Bên nhận</th>
+              <th>Trang bị</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in ban_giao_list %}
+            <tr>
+              <th scope="row">{{ forloop.counter }}</th>
+              <!-- <td>{{ item.ma_trang_bi }}</td> -->
+              <td>{{ item.ngay }}</td>
+              <td>{{ item.ben_giao }}</td>
+              <td>{{ item.ben_nhan }}</td>
+              <td>{{ item.ma_trang_bi }}</td>
+              <td>
+                {% if perms.home.change_bangiao %}
+                  <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#editBanGiaoModal{{ forloop.counter }}">Sửa</button>
+                {% endif %}
+                {% if perms.home.delete_bangiao %}
+                  <button class="btn btn-sm btn-danger" data-toggle="modal" data-target="#deleteBanGiaoModal{{ forloop.counter }}">Xóa</button>
+                {% endif %}
+              
+                <!-- Modal Sửa -->
+                <div class="modal fade" id="editBanGiaoModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title">Sửa Bàn Giao</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <form method="post" action="{% url 'sua_ban_giao' %}">
+                          {% csrf_token %}
+                          <input type="hidden" name="ma_ban_giao" value="{{ item.ma_ban_giao }}">
+                          <div class="form-group">
+                            <label>Mã Bàn Giao</label>
+                            <input type="text" class="form-control" name="ma_ban_giao" maxlength="10" required>
+                          </div>
+                          <div class="form-group">
+                            <label>Ngày</label>
+                            <input type="date" class="form-control" name="ngay" required>
+                          </div>
+                          <div class="form-group">
+                            <label>Bên Giao</label>
+                            <select class="form-control" name="ben_giao" required>
+                              {% for nhan_vien in nhan_vien_list %}
+                                <option value="{{ nhan_vien.ma_nhan_vien }}">{{ nhan_vien.ho_ten }}</option>
+                              {% endfor %}
+                            </select>
+                          </div>
+                          <div class="form-group">
+                            <label>Bên Nhận</label>
+                            <select class="form-control" name="ben_nhan" required>
+                              {% for nhan_vien in nhan_vien_list %}
+                                <option value="{{ nhan_vien.ma_nhan_vien }}">{{ nhan_vien.ho_ten }}</option>
+                              {% endfor %}
+                            </select>
+                          </div>
+                          <div class="form-group">
+                            <label>Mã Trang Bị</label>
+                            <select class="form-control" name="ma_trang_bi" required>
+                              {% for trang_bi in trang_bi_list %}
+                                <option value="{{ trang_bi.ma_trang_bi }}">{{ trang_bi.ten }}</option>
+                              {% endfor %}
+                            </select>
+                          </div>
+                          <button type="submit" class="btn btn-primary">Lưu</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              
+                <!-- Modal Xóa -->
+                <div class="modal fade" id="deleteBanGiaoModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title">Xóa Bàn Giao</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <p>Bạn có chắc chắn muốn xóa bàn giao <strong>{{ item.ma_ban_giao }}</strong>?</p>
+                      </div>
+                      <div class="modal-footer">
+                        <form method="post" action="{% url 'xoa_ban_giao' %}">
+                          {% csrf_token %}
+                          <input type="hidden" name="ma_ban_giao" value="{{ item.ma_ban_giao }}">
+                          <button type="submit" class="btn btn-danger">Xóa</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div><!-- bd -->
+    </div>
+</div>

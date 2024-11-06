@@ -1,0 +1,168 @@
+<div class="tab-pane fade {% if request.GET.tab == 'suachua' %}show active{% endif %}" id="suachua">
+    <!-- Nội dung của tab Sửa chữa -->
+    <div class="row row-xs wd-xl-80p">
+      <div class="col-sm-6 col-md-3 mg-t-10 mg-b-20 mg-md-t-0">
+        {% if perms.home.add_suachua %}
+          <button class="btn btn-primary btn-block" data-toggle="modal" data-target="#addSuaChuaModal">Thêm sửa chữa</button>
+        {% endif %}
+      </div>
+    </div>
+    
+    <!-- Modal Thêm -->
+    <div class="modal fade" id="addSuaChuaModal" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Thêm Sửa Chữa</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form method="post" action="{% url 'them_sua_chua' %}">
+              {% csrf_token %}
+              <div class="form-group">
+                <label>Mã Sửa Chữa</label>
+                <input type="text" class="form-control" name="ma_sua_chua" maxlength="10" required>
+              </div>
+              <div class="form-group">
+                <label>Ngày</label>
+                <input type="date" class="form-control" name="ngay" required>
+              </div>
+              <div class="form-group">
+                <label>Người Sửa</label>
+                <select class="form-control" name="nguoi_sua" required>
+                  {% for nhan_vien in nhan_vien_list %}
+                    <option value="{{ nhan_vien.ma_nhan_vien }}">{{ nhan_vien.ho_ten }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Nội Dung</label>
+                <textarea class="form-control" name="noi_dung" required></textarea>
+              </div>
+              <div class="form-group">
+                <label>Mã Trang Bị</label>
+                <select class="form-control" name="ma_trang_bi" required>
+                  {% for trang_bi in trang_bi_list %}
+                    <option value="{{ trang_bi.ma_trang_bi }}">{{ trang_bi.ten }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary">Lưu</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row row-sm mg-b-20">
+      <div class="table-responsive">
+        <table class="table table-striped mg-b-0">
+          <thead>
+            <tr>
+              <th>STT</th>
+              <th>Ngày</th>
+              <th>Người sửa</th>
+              <th>Nội dung</th>
+              <th>Trang bị</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in sua_chua_list %}
+            <tr>
+              <th scope="row">{{ forloop.counter }}</th>
+              <!-- <td>{{ item.ma_trang_bi }}</td> -->
+              <td>{{ item.ngay }}</td>
+              <td>{{ item.nguoi_sua }}</td>
+              <td>{{ item.noi_dung }}</td>
+              <td>{{ item.ma_trang_bi }}</td>
+              <td>
+                {% if perms.home.change_suachua %}
+                  <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#editSuaChuaModal{{ forloop.counter }}">Sửa</button>
+                {% endif %}
+                {% if perms.home.delete_suachua %}
+                  <button class="btn btn-sm btn-danger" data-toggle="modal" data-target="#deleteSuaChuaModal{{ forloop.counter }}">Xóa</button>
+                {% endif %}
+              
+                <!-- Modal Sửa -->
+                <div class="modal fade" id="editSuaChuaModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title">Sửa Sửa Chữa</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <form method="post" action="{% url 'sua_sua_chua' %}">
+                          {% csrf_token %}
+                          <input type="hidden" name="ma_sua_chua" value="{{ item.ma_sua_chua }}">
+                          <div class="form-group">
+                            <label>Mã Sửa Chữa</label>
+                            <input type="text" class="form-control" name="ma_sua_chua" maxlength="10" required>
+                          </div>
+                          <div class="form-group">
+                            <label>Ngày</label>
+                            <input type="date" class="form-control" name="ngay" required>
+                          </div>
+                          <div class="form-group">
+                            <label>Người Sửa</label>
+                            <select class="form-control" name="nguoi_sua" required>
+                              {% for nhan_vien in nhan_vien_list %}
+                                <option value="{{ nhan_vien.ma_nhan_vien }}">{{ nhan_vien.ho_ten }}</option>
+                              {% endfor %}
+                            </select>
+                          </div>
+                          <div class="form-group">
+                            <label>Nội Dung</label>
+                            <textarea class="form-control" name="noi_dung" required></textarea>
+                          </div>
+                          <div class="form-group">
+                            <label>Mã Trang Bị</label>
+                            <select class="form-control" name="ma_trang_bi" required>
+                              {% for trang_bi in trang_bi_list %}
+                                <option value="{{ trang_bi.ma_trang_bi }}">{{ trang_bi.ten }}</option>
+                              {% endfor %}
+                            </select>
+                          </div>
+                          <button type="submit" class="btn btn-primary">Lưu</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              
+                <!-- Modal Xóa -->
+                <div class="modal fade" id="deleteSuaChuaModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title">Xóa Sửa Chữa</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <p>Bạn có chắc chắn muốn xóa sửa chữa <strong>{{ item.ma_sua_chua }}</strong>?</p>
+                      </div>
+                      <div class="modal-footer">
+                        <form method="post" action="{% url 'xoa_sua_chua' %}">
+                          {% csrf_token %}
+                          <input type="hidden" name="ma_sua_chua" value="{{ item.ma_sua_chua }}">
+                          <button type="submit" class="btn btn-danger">Xóa</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div><!-- bd -->
+    </div>
+</div>

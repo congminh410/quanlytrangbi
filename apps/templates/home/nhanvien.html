@@ -1,0 +1,152 @@
+<div class="tab-pane fade {% if request.GET.tab == 'nhanvien' %}show active{% endif %}" id="nhanvien">
+    <!-- Nội dung của tab Nhân viên -->
+    <div class="row row-xs wd-xl-80p">
+      <div class="col-sm-6 col-md-3 mg-t-10 mg-b-20 mg-md-t-0">
+        {% if perms.home.add_nhanvien %}
+          <button class="btn btn-primary btn-block" data-toggle="modal" data-target="#addNhanVienModal">Thêm nhân viên</button>
+        {% endif %}
+      </div>
+    </div>
+    
+    <!-- Modal -->
+    <div class="modal fade" id="addNhanVienModal" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Thêm Nhân Viên</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <!-- Form thêm nhân viên -->
+            <form method="post" action="{% url 'them_nhan_vien' %}">
+              {% csrf_token %}
+              <div class="form-group">
+                <label>Mã Nhân Viên</label>
+                <input type="text" class="form-control" name="ma_nhan_vien" maxlength="10" required>
+              </div>
+              <div class="form-group">
+                <label>Họ Tên</label>
+                <input type="text" class="form-control" name="ho_ten" maxlength="100" required>
+              </div>
+              <div class="form-group">
+                <label>Đơn Vị</label>
+                <input type="text" class="form-control" name="don_vi" maxlength="100" required>
+              </div>
+              <div class="form-group">
+                <label>Vai Trò</label>
+                <input type="text" class="form-control" name="vai_tro" maxlength="50" required>
+              </div>
+              <div class="form-group">
+                <label>Tên Đăng Nhập</label>
+                <input type="text" class="form-control" name="ten_dang_nhap" maxlength="50">
+              </div>
+              <button type="submit" class="btn btn-primary">Lưu</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row row-sm mg-b-20">
+      <div class="table-responsive">
+        <table class="table table-striped mg-b-0">
+          <thead>
+            <tr>
+              <th>STT</th>
+              <th>Họ tên</th>
+              <th>Đơn vị</th>
+              <th>Vai trò</th>
+              <th>Số trang bị</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in nhan_vien_list %}
+            <tr>
+              <th scope="row">{{ forloop.counter }}</th>
+              <!-- <td>{{ item.ma_trang_bi }}</td> -->
+              <td>{{ item.ho_ten }}</td>
+              <td>{{ item.don_vi }}</td>
+              <td>{{ item.vai_tro }}</td>
+              <td>{{ item.so_luong_trang_bi }}</td>
+              <td>
+                <!-- Nút Sửa -->
+                {% if perms.home.change_nhanvien %}
+                  <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#editNhanVienModal{{ forloop.counter }}">Sửa</button>
+                {% endif %}
+                <!-- Nút Xóa -->
+                {% if perms.home.delete_nhanvien %}
+                  <button class="btn btn-sm btn-danger" data-toggle="modal" data-target="#deleteNhanVienModal{{ forloop.counter }}">Xóa</button>
+                {% endif %}
+              
+                <!-- Modal Sửa Nhân Viên -->
+                <div class="modal fade" id="editNhanVienModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="editNhanVienModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="editNhanVienModalLabel">Chỉnh sửa Nhân Viên</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <form id="editNhanVienForm" method="post" action="{% url 'sua_nhan_vien' %}">
+                          {% csrf_token %}
+                          <input type="hidden" id="editMaNhanVien" name="ma_nhan_vien" value="{{ nhan_vien.ma_nhan_vien }}">
+                          <div class="form-group">
+                            <label for="editHoTen">Họ Tên</label>
+                            <input type="text" class="form-control" id="editHoTen" name="ho_ten" value="{{ nhan_vien.ho_ten }}" required>
+                          </div>
+                          <div class="form-group">
+                            <label for="editDonVi">Đơn Vị</label>
+                            <input type="text" class="form-control" id="editDonVi" name="don_vi" value="{{ nhan_vien.don_vi }}" required>
+                          </div>
+                          <div class="form-group">
+                            <label for="editVaiTro">Vai Trò</label>
+                            <input type="text" class="form-control" id="editVaiTro" name="vai_tro" value="{{ nhan_vien.vai_tro }}" required>
+                          </div>
+                          <div class="form-group">
+                            <label for="editTenDangNhap">Tên Đăng Nhập</label>
+                            <input type="text" class="form-control" id="editTenDangNhap" name="ten_dang_nhap" value="{{ nhan_vien.ten_dang_nhap }}">
+                          </div>
+                          <button type="submit" class="btn btn-primary">Lưu</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              
+                <!-- Modal Xóa Nhân Viên -->
+                <div class="modal fade" id="deleteNhanVienModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="deleteNhanVienModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="deleteNhanVienModalLabel">Xóa Nhân Viên</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <p>Bạn có chắc chắn muốn xóa nhân viên <strong>{{ nhan_vien.ho_ten }}</strong>?</p>
+                      </div>
+                      <div class="modal-footer">
+                        <form id="deleteNhanVienForm" method="post" action="{% url 'xoa_nhan_vien' %}">
+                          {% csrf_token %}
+                          <input type="hidden" id="deleteMaNhanVien" name="ma_nhan_vien" value="{{ nhan_vien.ma_nhan_vien }}">
+                          <button type="submit" class="btn btn-danger">Xóa</button>
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div><!-- bd -->
+    </div>
+</div>

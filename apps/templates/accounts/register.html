@@ -11,39 +11,30 @@
       <div class="az-column-signup-left">
         <div>
           <i class="typcn typcn-chart-bar-outline"></i>
-          <h1 class="az-logo">az<span>i</span>a</h1>
-          <h5>Django Dashboard</h5>
-          <p>We are excited to launch our new company and product Azia. 
-             After being featured in too many magazines to mention and having created an online stir, 
-             we know that BootstrapDash is going to be big. We also hope to win Startup Fictional Business of the Year this year.</p>
-
-          <p>
-            &copy; <a target="_blank" href="https://bit.ly/2UTgih5">BootstrapDash.com</a> 
-            - coded by <a target="_blank" href="https://appseed.us">AppSeed</a>            
-          </p>
-
-          <a target="_blank" href="https://appseed.us" class="btn btn-outline-indigo">More Starters</a>
+          <h1 class="az-logo" style="text-transform: uppercase">QLTB</h1>
+          <h5>Hệ thống quản lý trang bị CNTT cấp 1</h5>
+          <p style="text-align: justify;">Hệ thống cung cấp cơ sở hạ tầng nền tảng cho việc quản lý và kiểm soát các tài sản công nghệ thông tin trong tổ chức. Hệ thống này giúp tổ chức theo dõi, bảo trì và cập nhật các thiết bị, phần mềm, và tài nguyên kỹ thuật số một cách hiệu quả. Điều này đảm bảo hiệu suất hoạt động liên tục và ổn định, tăng cường bảo mật dữ liệu và giảm thiểu rủi ro mất mát hay hư hỏng tài sản. Đồng thời, việc quản lý hiệu quả giúp tối ưu hóa chi phí và cải thiện khả năng ra quyết định thông qua thông tin chi tiết và báo cáo đầy đủ.</p>
         </div>
       </div><!-- az-column-signup-left -->
       <div class="az-column-signup">
-        <h1 class="az-logo">az<span>i</span>a</h1>
+        <h1 class="az-logo" style="text-transform: uppercase">QLTB</h1>
 
         <div class="az-signup-header">
-          <h2>Register</h2>
+          <h2>Đăng ký</h2>
           
           <h4>
               <span class="mb-0 text-muted">
                   {% if msg %}
                       {{ msg | safe }}
                   {% else %}
-                      Add your credentials
+                      Nhập thông tin của bạn
                   {% endif %} 
               </span>          
           </h4>
 
           {% if success %}
 
-            <a href="{% url 'login' %}" class="btn btn-az-primary btn-block">Sign IN</a>
+            <a href="{% url 'login' %}" class="btn btn-az-primary btn-block">Đăng nhập</a>
 
           {% else %}
 
@@ -52,30 +43,24 @@
               {% csrf_token %}
 
               <div class="form-group">
-                <label>Username</label>
+                <label>Tên đăng nhập</label>
                 {{ form.username }}
               </div><!-- form-group -->
               <span class="text-error">{{ form.username.errors }}</span>
-              
-              <div class="form-group">
-                <label>Email</label>
-                  {{ form.email }}
-              </div><!-- form-group -->
-              <span class="text-error">{{ form.email.errors }}</span>
 
               <div class="form-group">
-                <label>Password</label>
+                <label>Mật khẩu</label>
                 {{ form.password1 }}
               </div><!-- form-group -->
               <span class="text-error">{{ form.password1.errors }}</span>
 
               <div class="form-group">
-                <label>Password</label>
+                <label>Nhập lại mật khẩu</label>
                 {{ form.password2 }}
               </div><!-- form-group -->            
               <span class="text-error">{{ form.password2.errors }}</span>
 
-              <button type="submit" name="register" class="btn btn-az-primary btn-block">Create Account</button>
+              <button type="submit" name="register" class="btn btn-az-primary btn-block">Tạo tài khoản</button>
 
             </form>
         
@@ -83,7 +68,7 @@
 
         </div><!-- az-signup-header -->
         <div class="az-signup-footer">
-          <p>Already have an account? <a href="{% url 'login' %}">Sign In</a></p>
+          <p>Sẵn sàng sử dụng tài khoản? <a href="{% url 'login' %}">Đăng nhập</a></p>
         </div><!-- az-signin-footer -->
       </div><!-- az-column-signup -->
     </div><!-- az-signup-wrapper -->

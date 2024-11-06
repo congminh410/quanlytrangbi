@@ -1,0 +1,180 @@
+<div class="tab-pane fade {% if request.GET.tab == 'trangbi' %}show active{% endif %}" id="trangbi">
+    <!-- Nội dung của tab Trang bị -->
+    <!-- Button trigger modal -->
+    <div class="row row-xs wd-xl-80p">
+      <div class="col-sm-6 col-md-3 mg-t-10 mg-b-20 mg-md-t-0">
+        {% if perms.home.add_trangbi %}
+          <button class="btn btn-primary btn-block" data-toggle="modal" data-target="#addTrangBiModal">Thêm trang bị</button>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="addTrangBiModal" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Thêm Trang Bị</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <!-- Form thêm trang bị -->
+            <form method="post" action="{% url 'them_trang_bi' %}">
+              {% csrf_token %}
+              <div class="form-group">
+                <label >Mã Trang Bị</label>
+                <input type="text" class="form-control" name="ma_trang_bi" maxlength="10" required>
+              </div>
+              <div class="form-group">
+                <label for="ten">Tên</label>
+                <input type="text" class="form-control" name="ten" maxlength="100" required>
+              </div>
+              <div class="form-group">
+                <label>Người Quản Lý</label>
+                <select class="form-control" name="nguoi_quan_ly" required>
+                  {% for nhan_vien in nhan_vien_list %}
+                  <option value="{{ nhan_vien.ma_nhan_vien }}">{{ nhan_vien.ho_ten }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="form-group">
+                <label >Tình Trạng</label>
+                <input type="text" class="form-control" name="tinh_trang" maxlength="50" required>
+              </div>
+              <div class="form-group">
+                <label>Loại</label>
+                <select class="form-control" name="loai" required>
+                  <option value="PC">PC</option>
+                  <option value="Laptop">Laptop</option>
+                  <option value="ThietBiMang">Thiết bị mạng</option>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary">Lưu</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row row-sm mg-b-20">
+      <div class="table-responsive">
+        <table class="table table-striped mg-b-0">
+          <thead>
+            <tr>
+              <th>STT</th>
+              <th>Tên trang bị</th>
+              <th>Người quản lý</th>
+              <th>Tình trạng</th>
+              <th>Loại</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in trang_bi_list %}
+            <tr>
+              <th scope="row">{{ forloop.counter }}</th>
+              <!-- <td>{{ item.ma_trang_bi }}</td> -->
+              <td>{{ item.ten }}</td>
+              <td>{{ item.nguoi_quan_ly }}</td>
+              <td>{{ item.tinh_trang }}</td>
+              <td>{% if item.loai == 'ThietBiMang' %}
+                Thiết bị mạng
+                {% elif item.loai == 'PC' %}
+                    PC
+                {% elif item.loai == 'Laptop' %}
+                    Laptop
+                {% else %}
+                    {{ item.loai }} <!-- Hiển thị giá trị mặc định nếu không khớp với các điều kiện trên -->
+                {% endif %}
+              </td>
+              
+              <td>
+                <!-- Nút Sửa -->
+                {% if perms.home.change_trangbi %}
+                  <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#editTrangBiModal{{ forloop.counter }}">Sửa</button>
+                {% endif %}
+                <!-- Nút Xóa -->
+                {% if perms.home.delete_trangbi %}
+                  <button class="btn btn-sm btn-danger" data-toggle="modal" data-target="#deleteTrangBiModal{{ forloop.counter }}">Xóa</button>
+                {% endif %}
+                <!-- Modal Sửa -->
+                <div class="modal fade" id="editTrangBiModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="editTrangBiModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="editTrangBiModalLabel">Chỉnh sửa Trang Bị</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <form id="editTrangBiForm" method="post" action="{% url 'sua_trang_bi' %}">
+                          {% csrf_token %}
+                          <input type="hidden" id="editMaTrangBi" name="ma_trang_bi" value="{{ item.ma_trang_bi }}">
+                          <div class="form-group">
+                            <label for="editTen">Tên</label>
+                            <input type="text" class="form-control" id="editTen" name="ten" value="{{ item.ten }}" required>
+                          </div>
+                          <div class="form-group">
+                            <label for="editNguoiQuanLy">Người Quản Lý</label>
+                            <select class="form-control" id="editNguoiQuanLy" name="nguoi_quan_ly" value="{{ item.ho_ten }}" required>
+                              {% for nhan_vien in nhan_vien_list %}
+                              <option value="{{ nhan_vien.ma_nhan_vien }}">{{ nhan_vien.ho_ten }}</option>
+                              {% endfor %}
+                            </select>
+                          </div>
+                          <div class="form-group">
+                            <label for="editTinhTrang">Tình Trạng</label>
+                            <input type="text" class="form-control" id="editTinhTrang" name="tinh_trang" value="{{ item.tinh_trang }}" required>
+                          </div>
+                          <div class="form-group">
+                            <label for="editLoai">Loại</label>
+                            <select class="form-control" id="editLoai" name="loai" value="{{ item.loai }}" required>
+                              <option value="PC">PC</option>
+                              <option value="Laptop">Laptop</option>
+                              <option value="ThietBiMang">Thiết bị mạng</option>
+                            </select>
+                          </div>
+                          <button type="submit" class="btn btn-primary">Lưu</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+
+                <!-- Modal Xóa -->
+                <div class="modal fade" id="deleteTrangBiModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="deleteTrangBiModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="deleteTrangBiModalLabel">Xóa Trang Bị</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <p>Bạn có chắc chắn muốn xóa trang bị <strong>{{ item.ten }}</strong>?</p>
+                      </div>
+                      <div class="modal-footer">
+                        <form id="deleteTrangBiForm" method="post" action="{% url 'xoa_trang_bi' %}">
+                          {% csrf_token %}
+                          <input type="hidden" id="deleteMaTrangBi" name="ma_trang_bi" value="{{ item.ma_trang_bi }}">
+                          <button type="submit" class="btn btn-danger">Xóa</button>
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </td>
+              
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div><!-- bd -->
+    </div>
+</div>

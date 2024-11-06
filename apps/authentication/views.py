@@ -43,7 +43,7 @@ def register_user(request):
             raw_password = form.cleaned_data.get("password1")
             user = authenticate(username=username, password=raw_password)
 
-            msg = 'User created successfully.'
+            msg = 'Tạo tài khoản thành công. Bạn phải chờ người quản trị xác minh danh tính để có quyền truy cập vào cơ sở dữ liệu của hệ thống.'
             success = True
 
             # return redirect("/login/")
